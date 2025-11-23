@@ -2,7 +2,7 @@
 <html lang="hu">
 <head>
 <meta charset="UTF-8">
-<title>Tetőléc kiosztó kalkulátor (cm)</title>
+<title>Tetőléc kiosztó kalkulátor (cm, 3 tizedesjegy)</title>
 <style>
 body { font-family: Arial; max-width: 700px; margin: auto; padding: 20px; }
 label { display: block; margin-top: 10px; }
@@ -17,22 +17,22 @@ canvas { border: 1px solid #aaa; margin-top: 20px; width: 100%; }
 <h2>Tetőléc kiosztó kalkulátor</h2>
 
 <label>Kezdőléc MIN (cm)</label>
-<input type="number" id="kezdoMin" step="0.1">
+<input type="number" id="kezdoMin" step="0.001">
 
 <label>Kezdőléc MAX (cm)</label>
-<input type="number" id="kezdoMax" step="0.1">
+<input type="number" id="kezdoMax" step="0.001">
 
 <label>Léctávolság MIN (cm)</label>
-<input type="number" id="lecMin" step="0.1">
+<input type="number" id="lecMin" step="0.001">
 
 <label>Léctávolság MAX (cm)</label>
-<input type="number" id="lecMax" step="0.1">
+<input type="number" id="lecMax" step="0.001">
 
 <label>Szarufa hossza (cm)</label>
-<input type="number" id="szarufa" step="0.1">
+<input type="number" id="szarufa" step="0.001">
 
 <label>Utolsó léc távolsága a gerinctől (cm)</label>
-<input type="number" id="lastDist" step="0.1">
+<input type="number" id="lastDist" step="0.001">
 
 <button onclick="szamol()">Kiosztás számítása</button>
 
@@ -55,9 +55,9 @@ function szamol() {
     let optimal = null;
     let positions = [];
 
-    // keresés
-    for (let kezdo = kezdoMax; kezdo >= kezdoMin; kezdo -= 0.1) {
-        for (let lec = lecMin; lec <= lecMax; lec += 0.1) {
+    // keresés 0.001 pontossággal
+    for (let kezdo = kezdoMax; kezdo >= kezdoMin; kezdo = parseFloat((kezdo - 0.001).toFixed(3))) {
+        for (let lec = lecMin; lec <= lecMax; lec = parseFloat((lec + 0.001).toFixed(3))) {
 
             let pos = [];
             let y = kezdo;
@@ -67,10 +67,9 @@ function szamol() {
                 y += lec;
             }
 
-            // utolsó távolság a gerinctől
             const last = szarufa - pos[pos.length - 1];
 
-            if (Math.abs(last - lastDist) <= 0.1) {
+            if (Math.abs(last - lastDist) <= 0.001) {
                 optimal = { kezdo, lec };
                 positions = pos;
                 break;
@@ -84,14 +83,14 @@ function szamol() {
         return;
     }
 
-    output += `Kezdőléc: ${optimal.kezdo.toFixed(1)} cm\n`;
-    output += `Léctávolság: ${optimal.lec.toFixed(1)} cm\n`;
+    output += `Kezdőléc: ${optimal.kezdo.toFixed(3)} cm\n`;
+    output += `Léctávolság: ${optimal.lec.toFixed(3)} cm\n`;
     output += `Lécpozíciók (cm):\n`;
     positions.forEach((p, i) => {
-        output += `${i+1}. léc: ${p.toFixed(1)} cm\n`;
+        output += `${i+1}. léc: ${p.toFixed(3)} cm\n`;
     });
     const last = szarufa - positions[positions.length - 1];
-    output += `Utolsó léc távolsága a gerinctől: ${last.toFixed(1)} cm`;
+    output += `Utolsó léc távolsága a gerinctől: ${last.toFixed(3)} cm`;
 
     result.innerText = output;
 
