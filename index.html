@@ -2,7 +2,7 @@
 <html lang="hu">
 <head>
 <meta charset="UTF-8">
-<title>Tetőléc kiosztó kalkulátor (cm, 3 tizedesjegy)</title>
+<title>Tetőléc kiosztó kalkulátor (cm, 3 tizedes, ±1 cm rugalmasság)</title>
 <style>
 body { font-family: Arial; max-width: 700px; margin: auto; padding: 20px; }
 label { display: block; margin-top: 10px; }
@@ -50,12 +50,14 @@ function szamol() {
     const szarufa = parseFloat(szarufaEl.value);
     const lastDist = parseFloat(lastDistEl.value);
 
+    const tolerance = 1.0; // ±1 cm rugalmasság
+
     let output = "";
 
     let optimal = null;
     let positions = [];
+    let bestDiff = Infinity;
 
-    // keresés 0.001 pontossággal
     for (let kezdo = kezdoMax; kezdo >= kezdoMin; kezdo = parseFloat((kezdo - 0.001).toFixed(3))) {
         for (let lec = lecMin; lec <= lecMax; lec = parseFloat((lec + 0.001).toFixed(3))) {
 
@@ -67,15 +69,17 @@ function szamol() {
                 y += lec;
             }
 
-            const last = szarufa - pos[pos.length - 1];
+            if(pos.length === 0) continue;
 
-            if (Math.abs(last - lastDist) <= 0.001) {
+            const last = szarufa - pos[pos.length - 1];
+            const diff = Math.abs(last - lastDist);
+
+            if (diff <= tolerance && diff < bestDiff) {
                 optimal = { kezdo, lec };
                 positions = pos;
-                break;
+                bestDiff = diff;
             }
         }
-        if (optimal) break;
     }
 
     if (!optimal) {
@@ -89,8 +93,8 @@ function szamol() {
     positions.forEach((p, i) => {
         output += `${i+1}. léc: ${p.toFixed(3)} cm\n`;
     });
-    const last = szarufa - positions[positions.length - 1];
-    output += `Utolsó léc távolsága a gerinctől: ${last.toFixed(3)} cm`;
+    const lastCalc = szarufa - positions[positions.length - 1];
+    output += `Utolsó léc távolsága a gerinctől: ${lastCalc.toFixed(3)} cm`;
 
     result.innerText = output;
 
