@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<title>Tetőléc kiosztó kalkulátor</title>
+<style>
+body { font-family: Arial; max-width: 700px; margin: auto; padding: 20px; }
+label { display: block; margin-top: 10px; }
+input { width: 100%; padding: 5px; margin-top: 5px; }
+button { margin-top: 15px; padding: 10px; width: 100%; font-size: 16px; }
+#result { margin-top: 20px; white-space: pre-wrap; }
+canvas { border: 1px solid #aaa; margin-top: 20px; width: 100%; }
+</style>
+</head>
+<body>
+
+<h2>Tetőléc kiosztó kalkulátor</h2>
+
+<label>Kézdőléc MIN (mm)</label>
+<input type="number" id="kezdoMin">
+
+<label>Kézdőléc MAX (mm)</label>
+<input type="number" id="kezdoMax">
+
+<label>Léctávolság MIN (mm)</label>
+<input type="number" id="lecMin">
+
+<label>Léctávolság MAX (mm)</label>
+<input type="number" id="lecMax">
+
+<label>Szarufa hossza (mm)</label>
+<input type="number" id="szarufa">
+
+<label>Tűrés (mm)</label>
+<input type="number" id="tures" value="5">
+
+<button onclick="szamol()">Kiosztás számítása</button>
+
+<h3>Eredmény</h3>
+<div id="result"></div>
+
+<canvas id="rajz" height="400"></canvas>
+
+<script>
+function szamol() {
+    const kezdoMin = parseFloat(kezdoMinEl.value);
+    const kezdoMax = parseFloat(kezdoMaxEl.value);
+    const lecMin = parseFloat(lecMinEl.value);
+    const lecMax = parseFloat(lecMaxEl.value);
+    const szarufa = parseFloat(szarufaEl.value);
+    const tures = parseFloat(turesEl.value);
+
+    let output = "";
+
+    let optimal = null;
+    let positions = [];
+
+    for (let kezdo = kezdoMax; kezdo >= kezdoMin; kezdo--) {
+        for (let lec = lecMin; lec <= lecMax; lec++) {
+
+            let pos = [];
+            let y = kezdo;
+
+            while (y < szarufa) {
+                pos.push(y);
+                y += lec;
+            }
+
+            const last = szarufa - pos[pos.length - 1];
+
+            if (Math.abs(last - lec) <= tures) {
+                optimal = { kezdo, lec };
+                positions = pos;
+                break;
+            }
+        }
+        if (optimal) break;
+    }
+
+    if (!optimal) {
+        result.innerText = "Nincs megfelelő kiosztás!";
+        return;
+    }
+
+    output += `Kezdőléc: ${optimal.kezdo} mm\n`;
+    output += `Léctávolság: ${optimal.lec} mm\n`;
+    output += `Lécpozíciók (mm):\n`;
+    positions.forEach((p, i) => {
+        output += `${i+1}. léc: ${p.toFixed(0)} mm\n`;
+    });
+
+    result.innerText = output;
+
+    draw(positions, szarufa);
+}
+
+function draw(pos, full) {
+    const canvas = document.getElementById("rajz");
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const scale = canvas.height / full;
+
+    pos.forEach(y => {
+        ctx.beginPath();
+        ctx.moveTo(0, y * scale);
+        ctx.lineTo(canvas.width, y * scale);
+        ctx.strokeStyle = "black";
+        ctx.stroke();
+    });
+}
+
+const kezdoMinEl = document.getElementById("kezdoMin");
+const kezdoMaxEl = document.getElementById("kezdoMax");
+const lecMinEl = document.getElementById("lecMin");
+const lecMaxEl = document.getElementById("lecMax");
+const szarufaEl = document.getElementById("szarufa");
+const turesEl = document.getElementById("tures");
+</script>
+
+</body>
+</html>
