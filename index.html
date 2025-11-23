@@ -2,7 +2,7 @@
 <html lang="hu">
 <head>
 <meta charset="UTF-8">
-<title>Tetőléc kiosztó kalkulátor</title>
+<title>Tetőléc kiosztó kalkulátor (cm)</title>
 <style>
 body { font-family: Arial; max-width: 700px; margin: auto; padding: 20px; }
 label { display: block; margin-top: 10px; }
@@ -16,23 +16,23 @@ canvas { border: 1px solid #aaa; margin-top: 20px; width: 100%; }
 
 <h2>Tetőléc kiosztó kalkulátor</h2>
 
-<label>Kézdőléc MIN (mm)</label>
-<input type="number" id="kezdoMin">
+<label>Kezdőléc MIN (cm)</label>
+<input type="number" id="kezdoMin" step="0.1">
 
-<label>Kézdőléc MAX (mm)</label>
-<input type="number" id="kezdoMax">
+<label>Kezdőléc MAX (cm)</label>
+<input type="number" id="kezdoMax" step="0.1">
 
-<label>Léctávolság MIN (mm)</label>
-<input type="number" id="lecMin">
+<label>Léctávolság MIN (cm)</label>
+<input type="number" id="lecMin" step="0.1">
 
-<label>Léctávolság MAX (mm)</label>
-<input type="number" id="lecMax">
+<label>Léctávolság MAX (cm)</label>
+<input type="number" id="lecMax" step="0.1">
 
-<label>Szarufa hossza (mm)</label>
-<input type="number" id="szarufa">
+<label>Szarufa hossza (cm)</label>
+<input type="number" id="szarufa" step="0.1">
 
-<label>Tűrés (mm)</label>
-<input type="number" id="tures" value="5">
+<label>Tűrés (cm)</label>
+<input type="number" id="tures" value="0.5" step="0.1">
 
 <button onclick="szamol()">Kiosztás számítása</button>
 
@@ -55,8 +55,8 @@ function szamol() {
     let optimal = null;
     let positions = [];
 
-    for (let kezdo = kezdoMax; kezdo >= kezdoMin; kezdo--) {
-        for (let lec = lecMin; lec <= lecMax; lec++) {
+    for (let kezdo = kezdoMax; kezdo >= kezdoMin; kezdo -= 0.1) {
+        for (let lec = lecMin; lec <= lecMax; lec += 0.1) {
 
             let pos = [];
             let y = kezdo;
@@ -82,11 +82,11 @@ function szamol() {
         return;
     }
 
-    output += `Kezdőléc: ${optimal.kezdo} mm\n`;
-    output += `Léctávolság: ${optimal.lec} mm\n`;
-    output += `Lécpozíciók (mm):\n`;
+    output += `Kezdőléc: ${optimal.kezdo.toFixed(1)} cm\n`;
+    output += `Léctávolság: ${optimal.lec.toFixed(1)} cm\n`;
+    output += `Lécpozíciók (cm):\n`;
     positions.forEach((p, i) => {
-        output += `${i+1}. léc: ${p.toFixed(0)} mm\n`;
+        output += `${i+1}. léc: ${p.toFixed(1)} cm\n`;
     });
 
     result.innerText = output;
